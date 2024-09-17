@@ -31,7 +31,7 @@ function App() {
   function deleteUser(user: User) {
     const original = [...users];
     setUsers(users.filter((u) => u.id !== user.id));
-    apiClient.delete('/users/' + user.id).catch((err) => {
+    userService.deleteUser(user.id).catch((err) => {
       setError(err.message);
       setUsers(original);
     });
@@ -39,13 +39,16 @@ function App() {
 
   const addUser = () => {
     const original = [...users];
+
     const newUser: User = {
       id: 0,
       name: 'timmy',
     };
+
     setUsers([newUser, ...users]);
-    apiClient
-      .post<User>('/users', newUser)
+
+    userService
+      .createUser(newUser)
       .then(({ data: savedUser }) => {
         setUsers([savedUser, ...users]);
       })
