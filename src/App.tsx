@@ -2,12 +2,9 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState } from 'react';
 import apiClient, { CanceledError } from './services/api-client';
+import userService, { User } from './services/user-service';
 
 //make this the data that you need, no reason for extra info
-interface User {
-  id: number;
-  name: string;
-}
 
 function App() {
   const [users, setUsers] = useState<User[]>([]);
@@ -15,15 +12,9 @@ function App() {
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
-    const controller = new AbortController();
-    // const fetchUsers = async () => {
-    // try {
-    // const res = await
     setLoading(true);
-    apiClient
-      .get<User[]>('/users', {
-        signal: controller.signal,
-      })
+    const { request, cancel } = userService.getAllUsers();
+    request
       .then((res) => {
         setUsers(res.data);
         setLoading(false); // duplication to make it work in strict mode
@@ -34,13 +25,7 @@ function App() {
         setLoading(false); // duplication to make it work in strict mode
       });
     // .finally(() => setLoading(false)); // how its suppose to be done (does not work in strict mode)
-    //   setUsers(res.data);
-    // } catch (error) {
-    //   setError((error as AxiosError).message);
-    // }
-    // fetchUsers();
-    // };
-    return () => controller.abort();
+    return () => cancel();
   }, []);
 
   function deleteUser(user: User) {
