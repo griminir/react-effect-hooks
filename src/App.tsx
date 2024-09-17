@@ -1,7 +1,7 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios, { AxiosError, CanceledError } from 'axios';
 import { useEffect, useState } from 'react';
+import apiClient, { CanceledError } from './services/api-client';
 
 //make this the data that you need, no reason for extra info
 interface User {
@@ -20,8 +20,8 @@ function App() {
     // try {
     // const res = await
     setLoading(true);
-    axios
-      .get<User[]>('https://jsonplaceholder.typicode.com/users', {
+    apiClient
+      .get<User[]>('/users', {
         signal: controller.signal,
       })
       .then((res) => {
@@ -46,12 +46,10 @@ function App() {
   function deleteUser(user: User) {
     const original = [...users];
     setUsers(users.filter((u) => u.id !== user.id));
-    axios
-      .delete('https://jsonplaceholder.typicode.com/users/' + user.id)
-      .catch((err) => {
-        setError(err.message);
-        setUsers(original);
-      });
+    apiClient.delete('/users/' + user.id).catch((err) => {
+      setError(err.message);
+      setUsers(original);
+    });
   }
 
   const addUser = () => {
@@ -61,8 +59,8 @@ function App() {
       name: 'timmy',
     };
     setUsers([newUser, ...users]);
-    axios
-      .post<User>('https://jsonplaceholder.typicode.com/users', newUser)
+    apiClient
+      .post<User>('/users', newUser)
       .then(({ data: savedUser }) => {
         setUsers([savedUser, ...users]);
       })
@@ -76,12 +74,10 @@ function App() {
     const updatedUser: User = { ...user, name: 'updated name' };
     const original = [...users];
     setUsers(users.map((u) => (u.id === user.id ? updatedUser : u)));
-    axios
-      .put('https://jsonplaceholder.typicode.com/users/' + user.id, updatedUser)
-      .catch((err) => {
-        setError(err.message);
-        setUsers(original);
-      });
+    apiClient.put('/users/' + user.id, updatedUser).catch((err) => {
+      setError(err.message);
+      setUsers(original);
+    });
   };
   return (
     <>
